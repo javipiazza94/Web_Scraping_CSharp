@@ -1,17 +1,17 @@
-﻿using Macros;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Edge;
-using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
+using OpenQA.Selenium.Interactions;
 using System.Collections.ObjectModel;
 using System.Xml;
 using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
 
 
+
 namespace Macros
 {
-    class MacroAQRSystems
+    class MacroAQRSystems : LabyrinthWebDriverScraperBase
     {
         static void Main(string[] args)
         {
@@ -39,7 +39,7 @@ namespace Macros
 
         private static void FillForm(IWebDriver driver)
         {
-            ScraperBase scraper = new ScraperBase();
+            var scraper = new LabyrinthWebDriverScraperBase();
 
             //Data
             string email = "javipiazza94@gmail.com";

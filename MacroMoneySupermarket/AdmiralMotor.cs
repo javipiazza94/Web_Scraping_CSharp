@@ -1,5 +1,4 @@
-﻿using MacroMoneySupermarket;
-using AdmiralMotorMacro;
+﻿
 using OpenQA.Selenium;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Support.UI;
@@ -8,12 +7,12 @@ using System.Collections.ObjectModel;
 using System.Xml;
 using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
-using static MacroMoneySupermarket.ScraperBase;
 
 
-namespace AdmiralMotorMacro
+
+namespace Macros
 {
-    class MacroAQRSystems
+    class Admiral:LabyrinthWebDriverScraperBase
     {
         static void Main(string[] args)
         {
@@ -21,7 +20,7 @@ namespace AdmiralMotorMacro
             {
                 try
                 {
-                    ScraperBase scraper = new ScraperBase();
+                    var scraper = new LabyrinthWebDriverScraperBase();
                     Person familyMember = new Person();
                     driver.Url = "https://www.admiral.com/car-insurance";
                     driver.Manage().Window.Maximize();
@@ -61,7 +60,7 @@ namespace AdmiralMotorMacro
             }
         }
 
-        private static void YourCar(EdgeDriver driver, ScraperBase scraper)
+        private static void YourCar(EdgeDriver driver, LabyrinthWebDriverScraperBase scraper)
         {
             // Data
             string manufacturer = "CITROEN";
@@ -130,9 +129,8 @@ namespace AdmiralMotorMacro
 
         }
 
-        private static void FillDetailsForDriver(Person familyMember, EdgeDriver driver, ScraperBase scraper)
+        private static void FillDetailsForDriver(Person familyMember, EdgeDriver driver, LabyrinthWebDriverScraperBase scraper)
         {
-            PersonExtensions.IncrementNumberOfPeople();
             switch (familyMember)
             {
                 case Person.Principal:
@@ -148,7 +146,7 @@ namespace AdmiralMotorMacro
         }
 
 
-        private static void YourDetails(EdgeDriver driver, ScraperBase scraper, Person person)
+        private static void YourDetails(EdgeDriver driver, LabyrinthWebDriverScraperBase scraper, Person person)
         {
             string postcode = "";
             string lastName = "";
@@ -247,7 +245,7 @@ namespace AdmiralMotorMacro
             }
         }
 
-        private static void DetailsCorrect(EdgeDriver driver, ScraperBase scraper)
+        private static void DetailsCorrect(EdgeDriver driver, LabyrinthWebDriverScraperBase scraper)
         {
             string carValue = "4000";
             string miles = "10000";
@@ -355,7 +353,7 @@ namespace AdmiralMotorMacro
             continueButton(driver);
         }
 
-        private static void Drivers(EdgeDriver driver, ScraperBase scraper, Person person)
+        private static void Drivers(EdgeDriver driver, LabyrinthWebDriverScraperBase scraper, Person person)
         {
             string email = "";
             string phoneNumber = "";
@@ -505,7 +503,7 @@ namespace AdmiralMotorMacro
             continueButton(driver);
 
         }
-        private static void AddPassenger(Person familyMember, ScraperBase scraper, EdgeDriver driver)
+        private static void AddPassenger(Person familyMember, LabyrinthWebDriverScraperBase scraper, EdgeDriver driver)
         {
             string postcode = "";
             string lastName = "";
