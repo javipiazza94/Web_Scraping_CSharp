@@ -57,146 +57,149 @@ namespace Macros
                 "¡Saludos y mis mejores deseos para ti en el próximo año!. Mensaje escrito por Alladin, IA de BlackRock, la que se quedará con tu empresa en 2030";
 
             //Start your journey
-            var startJourney = scraper.WaitAndGetElementVisible(By.XPath("//h2[.='Top Quality Web Scraping']/ancestor::div[@class = 'row content']//a"), 10, driver);
-            scraper.WaitForElementVisible(By.XPath("//h2[.='Top Quality Web Scraping']/ancestor::div[@class = 'row content']//a"), 2000, driver);
+            var startJourney = WaitAndGetElementVisible(By.XPath("//h2[.='Top Quality Web Scraping']/ancestor::div[@class = 'row content']//a"), 10, driver);
+            WaitForElementVisible(By.XPath("//h2[.='Top Quality Web Scraping']/ancestor::div[@class = 'row content']//a"), 2000, driver);
             if (startJourney != null)
             {
-                scraper.Click(By.XPath("//h2[.='Top Quality Web Scraping']/ancestor::div[@class = 'row content']//a"), driver);
+                Click(By.XPath("//h2[.='Top Quality Web Scraping']/ancestor::div[@class = 'row content']//a"), driver);
             }
 
             // Email
-            var emailElement = scraper.WaitAndGetElementVisible(By.Name("email_from"), 10, driver);
-            scraper.WaitForElementVisible(By.Name("email_from"), 3000, driver);
+            var emailElement = WaitAndGetElementVisible(By.Name("email_from"), 10, driver);
+            WaitForElementVisible(By.Name("email_from"), 3000, driver);
             if (emailElement != null)
             {
-                scraper.TypeWithSpeedSetting(emailElement, email, 100, driver);
+                TypeWithSpeedSetting(emailElement, email, 100, driver);
             }
 
             // Name
-            var nameElement = scraper.WaitAndGetElementVisible(By.Name("Your Name"), 1000, driver);
-            scraper.WaitForElementVisible(By.Name("Your Name"), 3000, driver);
+            var nameElement = WaitAndGetElementVisible(By.Name("Your Name"), 1000, driver);
+            WaitForElementVisible(By.Name("Your Name"), 3000, driver);
             if (nameElement != null)
             {
-                scraper.TypeWithSpeedSetting(nameElement, name, 100, driver);
+                TypeWithSpeedSetting(nameElement, name, 100, driver);
             }
 
             // Phone
-            var phoneElement = scraper.WaitAndGetElementVisible(By.Name("Phone Number"), 1000, driver);
-            scraper.WaitForElementVisible(By.Name("Phone Number"), 3000, driver);
+            var phoneElement = WaitAndGetElementVisible(By.Name("Phone Number"), 1000, driver);
+            WaitForElementVisible(By.Name("Phone Number"), 3000, driver);
             if (phoneElement != null)
             {
-                scraper.ClearInput(phoneElement);
-                scraper.TypeWithSpeedSetting(phoneElement, phone, 100, driver);
+                ClearInput(phoneElement);
+                TypeWithSpeedSetting(phoneElement, phone, 100, driver);
             }
 
             // Company
-            var companyElement = scraper.WaitAndGetElementVisible(By.Name("Your Company"), 1000, driver);
-            scraper.WaitForElementVisible(By.Name("Your Company"), 2000, driver);
+            var companyElement = WaitAndGetElementVisible(By.Name("Your Company"), 1000, driver);
+            WaitForElementVisible(By.Name("Your Company"), 2000, driver);
             if (companyElement != null)
             {
-                scraper.TypeWithSpeedSetting(companyElement, company, 100, driver);
+                TypeWithSpeedSetting(companyElement, company, 100, driver);
             }
 
             // Job Title
-            var jobTitleElement = scraper.WaitAndGetElementVisible(By.Name("Your Job Title"), 1000, driver);
-            scraper.WaitForElementVisible(By.Name("Your Job Title"), 3000, driver);
+            var jobTitleElement = WaitAndGetElementVisible(By.Name("Your Job Title"), 1000, driver);
+            WaitForElementVisible(By.Name("Your Job Title"), 3000, driver);
             if (jobTitleElement != null)
             {
-                scraper.TypeWithSpeedSetting(jobTitleElement, jobTitle, 100, driver);
+                TypeWithSpeedSetting(jobTitleElement, jobTitle, 100, driver);
             }
 
             // Subject
-            var subjectElement = scraper.WaitAndGetElementVisible(By.Name("subject"), 1000, driver);
-            scraper.WaitForElementVisible(By.Name("Your Job Title"), 3000, driver);
+            var subjectElement = WaitAndGetElementVisible(By.Name("subject"), 1000, driver);
+            WaitForElementVisible(By.Name("Your Job Title"), 3000, driver);
             if (subjectElement != null)
             {
-                scraper.TypeWithSpeedSetting(subjectElement, tasks, 100, driver);
+                TypeWithSpeedSetting(subjectElement, tasks, 100, driver);
             }
 
             // Webs...
             IWebElement webs = driver.FindElement(By.CssSelector("input#olaplo9zubm0"));
-            scraper.WaitForElementVisible(By.CssSelector("input#olaplo9zubm0"), 3000, driver);
-            if (scraper.IsElementPresentAndVisible(webs))
+            WaitForElementVisible(By.CssSelector("input#olaplo9zubm0"), 3000, driver);
+            if (IsElementPresentAndVisible(webs))
             {
-                scraper.Click(By.CssSelector("input#olaplo9zubm0"), driver);
+                Click(By.CssSelector("input#olaplo9zubm0"), driver);
             }
+
+            TakeScreenShotIfEnabled(driver, "Datos", 0, 0, 1600, 800);
+            TakeScreenshot(driver, "PEPE");
 
             // Different Webs...
             IWebElement agreementWeb = driver.FindElement(By.CssSelector("input#omhwxxkioc2a1"));
-            scraper.WaitForElementVisible(By.CssSelector("input#omhwxxkioc2a1"), 3000, driver);
-            if (scraper.IsElementPresentAndVisible(agreementWeb))
+            WaitForElementVisible(By.CssSelector("input#omhwxxkioc2a1"), 3000, driver);
+            if (IsElementPresentAndVisible(agreementWeb))
             {
-                scraper.Click(By.CssSelector("input#omhwxxkioc2a1"), driver);
+                Click(By.CssSelector("input#omhwxxkioc2a1"), driver);
             }
 
             // Competitors
             IWebElement competitorsWeb = driver.FindElement(By.CssSelector("input#ovxsfwsyfson1"));
-            scraper.WaitForElementVisible(By.CssSelector("input#ovxsfwsyfson1"), 3000, driver);
-            if (scraper.IsElementPresentAndVisible(competitorsWeb))
+            WaitForElementVisible(By.CssSelector("input#ovxsfwsyfson1"), 3000, driver);
+            if (IsElementPresentAndVisible(competitorsWeb))
             {
-                scraper.Click(By.CssSelector("input#ovxsfwsyfson1"), driver);
+                Click(By.CssSelector("input#ovxsfwsyfson1"), driver);
             }
 
             // Captcha
             IWebElement captcha = driver.FindElement(By.CssSelector("input#o8hdcwfo9l942"));
-            scraper.WaitForElementVisible(By.CssSelector("input#o8hdcwfo9l942"), 3000, driver);
-            if (scraper.IsElementPresentAndVisible(captcha))
+            WaitForElementVisible(By.CssSelector("input#o8hdcwfo9l942"), 3000, driver);
+            if (IsElementPresentAndVisible(captcha))
             {
-                scraper.Click(By.CssSelector("input#o8hdcwfo9l942"), driver);
+                Click(By.CssSelector("input#o8hdcwfo9l942"), driver);
             }
 
             // Specific Country
             IWebElement specificCountry = driver.FindElement(By.CssSelector("input#orsygimovho1"));
-            scraper.WaitForElementVisible(By.CssSelector("input#orsygimovho1"), 3000, driver);
-            if (scraper.IsElementPresentAndVisible(specificCountry))
+            WaitForElementVisible(By.CssSelector("input#orsygimovho1"), 3000, driver);
+            if (IsElementPresentAndVisible(specificCountry))
             {
-                scraper.Click(By.CssSelector("input#orsygimovho1"), driver);
+                Click(By.CssSelector("input#orsygimovho1"), driver);
             }
 
             // Scraping illegal
             IWebElement sIllegal = driver.FindElement(By.CssSelector("input#ocqx7hcfo6or2"));
-            scraper.WaitForElementVisible(By.CssSelector("input#ocqx7hcfo6or2"), 3000, driver);
-            if (scraper.IsElementPresentAndVisible(sIllegal))
+            WaitForElementVisible(By.CssSelector("input#ocqx7hcfo6or2"), 3000, driver);
+            if (IsElementPresentAndVisible(sIllegal))
             {
-                scraper.Click(By.CssSelector("input#ocqx7hcfo6or2"), driver);
+                Click(By.CssSelector("input#ocqx7hcfo6or2"), driver);
             }
 
             // Parametrized collection
             IWebElement paraCollectl = driver.FindElement(By.CssSelector("input#ob6y3fb92dwl0"));
-            scraper.WaitForElementVisible(By.CssSelector("input#ob6y3fb92dwl0"), 3000, driver);
-            if (scraper.IsElementPresentAndVisible(paraCollectl))
+            WaitForElementVisible(By.CssSelector("input#ob6y3fb92dwl0"), 3000, driver);
+            if (IsElementPresentAndVisible(paraCollectl))
             {
-                scraper.Click(By.CssSelector("input#ob6y3fb92dwl0"), driver);
+                Click(By.CssSelector("input#ob6y3fb92dwl0"), driver);
             }
 
             // Run collection
             IWebElement runCollect = driver.FindElement(By.CssSelector("input#ov8nb0rro6w0"));
-            scraper.WaitForElementVisible(By.CssSelector("input#ov8nb0rro6w0"), 3000, driver);
-            if (scraper.IsElementPresentAndVisible(runCollect))
+            WaitForElementVisible(By.CssSelector("input#ov8nb0rro6w0"), 3000, driver);
+            if (IsElementPresentAndVisible(runCollect))
             {
-                scraper.Click(By.CssSelector("input#ov8nb0rro6w0"), driver);
+                Click(By.CssSelector("input#ov8nb0rro6w0"), driver);
             }
 
             // Schedule data
             IWebElement scheduleData = driver.FindElement(By.CssSelector("input#otnvrl1uprq4"));
-            scraper.WaitForElementVisible(By.CssSelector("input#otnvrl1uprq4"), 3000, driver);
-            if (scraper.IsElementPresentAndVisible(scheduleData))
+            WaitForElementVisible(By.CssSelector("input#otnvrl1uprq4"), 3000, driver);
+            if (IsElementPresentAndVisible(scheduleData))
             {
-                scraper.Click(By.CssSelector("input#otnvrl1uprq4"), driver);
+                Click(By.CssSelector("input#otnvrl1uprq4"), driver);
             }    
             
             // Schedule data
             IWebElement collectData = driver.FindElement(By.CssSelector("input#ox7qxnxndxwd2"));
-            scraper.WaitForElementVisible(By.CssSelector("input#ox7qxnxndxwd2"), 3000, driver);
-            if (scraper.IsElementPresentAndVisible(collectData))
+            WaitForElementVisible(By.CssSelector("input#ox7qxnxndxwd2"), 3000, driver);
+            if (IsElementPresentAndVisible(collectData))
             {
-                scraper.Click(By.CssSelector("input#ox7qxnxndxwd2"), driver);
+                Click(By.CssSelector("input#ox7qxnxndxwd2"), driver);
             }
 
             //  Start date data
             IWebElement startDateData = driver.FindElement(By.Name("When do you need data collection to start?"));
-            scraper.WaitForElementVisible(By.Name("When do you need data collection to start?"), 3000, driver);
-            if (scraper.IsElementPresentAndVisible(startDateData))
+            WaitForElementVisible(By.Name("When do you need data collection to start?"), 3000, driver);
+            if (IsElementPresentAndVisible(startDateData))
             {
                 DateTime date = DateTime.Now;
                 string fechaFormateada = date.ToString("yyyy-MM-dd");
@@ -205,8 +208,8 @@ namespace Macros
 
             //  finish date data
             IWebElement finishDateData = driver.FindElement(By.Name("When do you need data collection to finish?"));
-            scraper.WaitForElementVisible(By.Name("When do you need data collection to finish?"), 3000, driver);
-            if (scraper.IsElementPresentAndVisible(finishDateData))
+            WaitForElementVisible(By.Name("When do you need data collection to finish?"), 3000, driver);
+            if (IsElementPresentAndVisible(finishDateData))
             {
                 DateTime date = DateTime.Now.AddYears(1);
                 string fechaFormateada = date.ToString("yyyy-MM-dd");
@@ -215,8 +218,8 @@ namespace Macros
 
             //  Budget date data
             IWebElement budgetDateData = driver.FindElement(By.Name("When do you need an answer with a budget?"));
-             scraper.WaitForElementVisible(By.Name("When do you need an answer with a budget?"), 3000, driver);
-             if (scraper.IsElementPresentAndVisible(budgetDateData))
+             WaitForElementVisible(By.Name("When do you need an answer with a budget?"), 3000, driver);
+             if (IsElementPresentAndVisible(budgetDateData))
              {
                 DateTime date = DateTime.Now.AddMonths(3);
                 string fechaFormateada = date.ToString("yyyy-MM-dd");
@@ -226,26 +229,26 @@ namespace Macros
 
             // Type of data
             IWebElement typeData = driver.FindElement(By.CssSelector("input#o4eiuqx0lul3"));
-            scraper.WaitForElementVisible(By.CssSelector("input#o4eiuqx0lul3"), 3000, driver);
-            if (scraper.IsElementPresentAndVisible(typeData))
+            WaitForElementVisible(By.CssSelector("input#o4eiuqx0lul3"), 3000, driver);
+            if (IsElementPresentAndVisible(typeData))
             {
-                scraper.Click(By.CssSelector("input#o4eiuqx0lul3"), driver);
+                Click(By.CssSelector("input#o4eiuqx0lul3"), driver);
             }
 
             // Message
-            var messageScraped = scraper.WaitAndGetElementVisible(By.Name("Need to describe the project in more detail?"), 10, driver);
-            scraper.WaitForElementVisible(By.Name("Need to describe the project in more detail?"), 3000, driver);
+            var messageScraped = WaitAndGetElementVisible(By.Name("Need to describe the project in more detail?"), 10, driver);
+            WaitForElementVisible(By.Name("Need to describe the project in more detail?"), 3000, driver);
             if (emailElement != null)
             {
-                scraper.TypeWithSpeedSetting(messageScraped, message, 100, driver);
+                TypeWithSpeedSetting(messageScraped, message, 100, driver);
             }
 
             // Type of data
             IWebElement submit = driver.FindElement(By.CssSelector("a[role='button']"));
-            scraper.WaitForElementVisible(By.CssSelector("a[role='button']"), 3000, driver);
-            if (scraper.IsElementPresentAndVisible(submit))
+            WaitForElementVisible(By.CssSelector("a[role='button']"), 3000, driver);
+            if (IsElementPresentAndVisible(submit))
             {
-                scraper.Click(By.CssSelector("a[role='button']"), driver);
+                Click(By.CssSelector("a[role='button']"), driver);
             }
 
             #region Helpers

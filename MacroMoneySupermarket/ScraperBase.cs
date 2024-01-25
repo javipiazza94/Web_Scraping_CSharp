@@ -12,6 +12,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Net;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Threading;
+using Newtonsoft.Json;
+using OpenQA.Selenium.Remote;
+using OpenQA.Selenium.Firefox;
+using System.Web;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 
 
 namespace Macros
@@ -28,12 +45,11 @@ namespace Macros
 
         }
 
-
         /// <summary>
         /// Opens the URL.
         /// </summary>
         /// <param name="URL">The URL.</param>
-        public void OpenURL(string URL, IWebDriver driver)
+        public static void OpenURL(string URL, IWebDriver driver)
         {
             if (driver != null)
             {
@@ -45,7 +61,7 @@ namespace Macros
         /// Gets the body text.
         /// </summary>
         /// <returns></returns>
-        public String GetBodyText(IWebDriver driver)
+        public static String GetBodyText(IWebDriver driver)
         {
             bool present = false;
             return driver.FindElement(By.TagName("body")).Text;
@@ -57,7 +73,7 @@ namespace Macros
         /// </summary>
         /// <param name="action">Action to execute</param>
         /// <param name="times">Times to try</param>
-        public void ManageStaleElementException(Action action, int times)
+        public static void ManageStaleElementException(Action action, int times)
         {
             bool done = false;
             int count = 0;
@@ -84,12 +100,91 @@ namespace Macros
             }
         }
 
+        /// <summary>
+        /// Setups Make screenshots by cuts
+        /// </summary>
+        /// <param name="cssSelector">The element located by css.</param>
+        /// <param name="message">Name of Screenshot.</param>
+        public static void TakePartialScreenshotsWithScrolling(string cssLocator, string message, IWebDriver driver, string screenshotPath)
+        {
+            int current = 0;
+            cssLocator = cssLocator.Trim().Replace(" ", "."); // subclasses
+            int height = driver.FindElement(By.CssSelector(cssLocator)).Size.Height;
+            int numberOfScreenshots = (height / 800) + (height % 800 > 0 ? 1 : 0);
+
+            if (height <= 800)
+            {
+                TakeScreenshot(driver, screenshotPath);
+                return;
+            }
+
+            // Go to top
+            RunScript($"document.querySelector('{cssLocator}').scrollBy(0, -{height + 500});", driver);
+
+            // Following screenshots
+            for (int i = 0; i < numberOfScreenshots; i++)
+            {
+                TakeScreenShotIfEnabled(driver, $"{message}. Part {i + 1}", 0, current, 1600, 800);
+                RunScript($"document.querySelector('{cssLocator}').scrollBy(0, 800);", driver);
+                current += 800;
+            }
+        }
+
+        public static void TakeScreenShotIfEnabled(IWebDriver driver, string message, int x, int y, int width, int height)
+        {
+            // Tomar el screenshot si el driver es válido y las coordenadas son válidas
+            if (driver != null && x >= 0 && y >= 0 && width > 0 && height > 0)
+            {
+                // Convertir el WebDriver a tipo ITakesScreenshot
+                ITakesScreenshot takesScreenshotDriver = driver as ITakesScreenshot;
+
+                // Tomar el screenshot como tipo Screenshot
+                Screenshot screenshot = takesScreenshotDriver.GetScreenshot();
+
+                // Crear un rectángulo con las coordenadas proporcionadas
+                Rectangle cropArea = new Rectangle(x, y, width, height);
+
+                // Recortar el screenshot usando las coordenadas proporcionadas
+                Bitmap croppedImage = CropImage(screenshot.AsByteArray, cropArea);
+
+                // Guardar el screenshot recortado en una ubicación específica o procesarlo según sea necesario
+                croppedImage.Save($"C:/Users/MSI/Documents/Macros de Web Scraping/imagenes/{message}.png", ImageFormat.Png);
+            }
+        }
+
+        // Método para recortar una imagen utilizando un área específica
+        public static Bitmap CropImage(byte[] imageBytes, Rectangle cropArea)
+        {
+            using (MemoryStream ms = new MemoryStream(imageBytes))
+            {
+                Bitmap originalImage = new Bitmap(ms);
+                Bitmap croppedImage = originalImage.Clone(cropArea, originalImage.PixelFormat);
+                return croppedImage;
+            }
+        }
+
+
+        /// <summary>
+        /// Takes an entire page screen shot if the param has been enabled at config file. Screenshots are saved 
+        /// at Desktop\SeleniumScreenShots\YYYY_MM\[AssignmentID]\[ScreenShotCounter].PNG
+        /// <br/>Version 0.9.8 - Added HTML feature. If the param "SeleniumSendHTMLAtSuccess" is enabled, when you call this function
+        /// also the HTML page will be saved
+        /// </summary>
+        public static void TakeScreenshot(IWebDriver driver, string message)
+        {
+            // Tomar la captura de pantalla y guardarla en el archivo especificado
+            ITakesScreenshot screenshotDriver = driver as ITakesScreenshot;
+            Screenshot screenshot = screenshotDriver.GetScreenshot();
+            string path = $"C:/Users/MSI/Documents/Macros de Web Scraping/imagenes/{message}.png";
+            screenshot.SaveAsFile(path);
+        }
+
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="element"></param>
-        public void ClearInput(IWebElement element)
+        public static void ClearInput(IWebElement element)
         {
             element.Click();
             element.Clear();
@@ -98,11 +193,38 @@ namespace Macros
         }
 
         /// <summary>
+        /// Remove extra white spaces: doble space or more and return single space. 
+        /// Useful to standardize texts before to check for matches
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string RemoveExtraWhiteSpaces(string value)
+        {
+            var parts = value.Split(' ');
+            var stringBuilder = new StringBuilder();
+
+            foreach (var part in parts)
+            {
+                if (!string.IsNullOrEmpty(part) && !string.IsNullOrWhiteSpace(part))
+                {
+                    if (part.Length.Equals(1) && char.IsPunctuation(part, 0) && stringBuilder.Length > 0)
+                    {
+                        // adds the punctuation character without previous space. Eg: Bristol, England. 
+                        stringBuilder.Remove(stringBuilder.Length - 1, 1);
+                    }
+                    stringBuilder.AppendFormat("{0} ", part);
+                }
+            }
+
+            return stringBuilder.ToString().TrimEnd(' ');
+        }
+
+        /// <summary>
         /// Types into the specified by element.
         /// </summary>
         /// <param name="by">The by element.</param>
         /// <param name="text">The text.</param>
-        public void Type(By by, String text, IWebDriver driver)
+        public static void Type(By by, String text, IWebDriver driver)
         {
             ScrollWindowToElement(by, LocationInWindow.MIDDLE, driver);
             IWebElement inputElement = driver.FindElement(by);
@@ -116,7 +238,7 @@ namespace Macros
         /// <param name="text"></param>
         /// <param name="speed"></param>
         /// <param name="driver"></param>
-        public void TypeWithSpeedSetting(IWebElement input, string text, int speed, IWebDriver driver)
+        public static void TypeWithSpeedSetting(IWebElement input, string text, int speed, IWebDriver driver)
         {
             string[] textArray = text.ToCharArray().Select(c => c.ToString()).ToArray();
 
@@ -138,7 +260,7 @@ namespace Macros
         /// </summary>
         /// <param name="byElement">The by element.</param>
         /// <param name="text">The text.</param>
-        public void TypeWithFocusIfPresentAndVisible(By byElement, String text, IWebDriver driver)
+        public static void TypeWithFocusIfPresentAndVisible(By byElement, String text, IWebDriver driver)
         {
             if (IsElementPresentAndVisible(byElement, driver))
             {
@@ -153,7 +275,7 @@ namespace Macros
         /// <param name="maxSeconds"></param>
         /// <param name="driver"></param>
         /// <returns></returns>
-        public IWebElement WaitAndGetElementVisible(By by, int maxSeconds, IWebDriver driver)
+        public static IWebElement WaitAndGetElementVisible(By by, int maxSeconds, IWebDriver driver)
         {
             try
             {
@@ -180,7 +302,7 @@ namespace Macros
         /// <param name="maxSeconds"></param>
         /// <param name="driver"></param>
         /// <returns></returns>
-        public bool WaitForElementVisible(By elementBy, int maxmiliSeconds, IWebDriver driver)
+        public static bool WaitForElementVisible(By elementBy, int maxmiliSeconds, IWebDriver driver)
         {
             Thread.Sleep(maxmiliSeconds);
             IWebElement webElement = WaitAndGetElementVisible(elementBy, maxmiliSeconds, driver);
@@ -195,7 +317,7 @@ namespace Macros
         /// </summary>
         /// <param name="locator">The common locator for the list elements</param>
         /// <param name="maxTime">Max waiting time</param>
-        public void WaitForAllListElements(By locator, int maxTime, IWebDriver driver)
+        public static void WaitForAllListElements(By locator, int maxTime, IWebDriver driver)
         {
             int timeCount = 0;
             int previousCount = -1;
@@ -224,7 +346,7 @@ namespace Macros
         /// <param name="by"></param>
         /// <param name="driver"></param>
         /// <returns></returns>
-        public bool IsElementPresentAndVisible(IWebElement element)
+        public static bool IsElementPresentAndVisible(IWebElement element)
         {
             try
             {
@@ -245,7 +367,7 @@ namespace Macros
         /// <param name="by">The by.</param>
         /// <returns>
         ///   <c>true</c> if [is element present and visible and not editable] [the specified by]; otherwise, <c>false</c>.</returns>
-        public bool IsElementPresentAndVisibleAndNotEditable(By by, IWebDriver driver)
+        public static bool IsElementPresentAndVisibleAndNotEditable(By by, IWebDriver driver)
         {
             bool presentAndVisibleAndNotEditable = false;
 
@@ -267,7 +389,7 @@ namespace Macros
         /// <param name="by">The by.</param>
         /// <returns>
         ///   <c>true</c> if [is element present and visible and editable] [the specified by]; otherwise, <c>false</c>.</returns>
-        public bool IsElementPresentAndVisibleAndEditable(By by, IWebDriver driver)
+        public static bool IsElementPresentAndVisibleAndEditable(By by, IWebDriver driver)
         {
             bool presentAndVisibleAndEditable = false;
 
@@ -288,7 +410,7 @@ namespace Macros
         /// </summary>
         /// <param name="by"></param>
         /// <returns></returns>
-        public bool IsElementPresent(By by, IWebDriver driver)
+        public static bool IsElementPresent(By by, IWebDriver driver)
         {
             bool present = false;
 
@@ -309,7 +431,7 @@ namespace Macros
         /// <param name="by"></param>
         /// <param name="driver"></param>
         /// <returns></returns>
-        public bool IsElementPresentAndVisible(By by, IWebDriver driver)
+        public static bool IsElementPresentAndVisible(By by, IWebDriver driver)
         {
             bool presentAndVisible = false;
 
@@ -334,7 +456,7 @@ namespace Macros
         /// <param name="maxSeconds"></param>
         /// <param name="driver"></param>
         /// <returns></returns>
-        public IWebElement WaitAndGetElementPresent(By by, int maxSeconds, IWebDriver driver)
+        public static IWebElement WaitAndGetElementPresent(By by, int maxSeconds, IWebDriver driver)
         {
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(maxSeconds));
 
@@ -352,7 +474,7 @@ namespace Macros
         /// Runs the script.
         /// </summary>
         /// <param name="script">The script.</param>
-        public void RunScript(String script, IWebDriver driver)
+        public static void RunScript(String script, IWebDriver driver)
         {
             ((IJavaScriptExecutor)driver).ExecuteScript(script);
         }
@@ -362,7 +484,7 @@ namespace Macros
         /// </summary>
         /// <param name="script">The script.</param>
         /// <param name="args">The arguments.</param>
-        public void RunScriptWithParameters(String script, object[] args, IWebDriver driver)
+        public static void RunScriptWithParameters(String script, object[] args, IWebDriver driver)
         {
             ((IJavaScriptExecutor)driver).ExecuteScript(script, args);
         }
@@ -372,7 +494,7 @@ namespace Macros
         /// </summary>
         /// <param name="byElement">The by element.</param>
         /// <returns></returns>
-        public String GetText(By byElement, IWebDriver driver)
+        public static String GetText(By byElement, IWebDriver driver)
         {
             return driver.FindElement(byElement).Text;
         }
@@ -383,7 +505,7 @@ namespace Macros
         /// <param name="byElement">The by element.</param>
         /// <param name="attribute">The attribute.</param>
         /// <returns></returns>
-        public String GetAttribute(By byElement, String attribute, IWebDriver driver)
+        public static String GetAttribute(By byElement, String attribute, IWebDriver driver)
         {
             return driver.FindElement(byElement).GetAttribute(attribute);
         }
@@ -393,7 +515,7 @@ namespace Macros
         /// </summary>
         /// <param name="element">The element.</param>
         /// <param name="attr">The attribute.</param>
-        public void RemoveAttribute(IWebElement element, String attr, IWebDriver driver)
+        public static void RemoveAttribute(IWebElement element, String attr, IWebDriver driver)
         {
             RunScriptWithParameters($"arguments[0].removeAttribute('{attr}');", new object[] { element }, driver);
         }
@@ -405,7 +527,7 @@ namespace Macros
         /// <param name="attr">The attribute.</param>
         /// <param name="value">The value.</param>
         /// <returns></returns>
-        public void SetAttribute(IWebElement element, String attr, String value, IWebDriver driver)
+        public static void SetAttribute(IWebElement element, String attr, String value, IWebDriver driver)
         {
             RunScriptWithParameters($"arguments[0].setAttribute('{attr}', '{value}');", new object[] { element }, driver);
         }
@@ -413,7 +535,7 @@ namespace Macros
         /// <summary>Gets the text if present.</summary>
         /// <param name="byElement">The by element.</param>
         /// <returns></returns>
-        public String GetTextIfPresent(By byElement, IWebDriver driver)
+        public static String GetTextIfPresent(By byElement, IWebDriver driver)
         {
             IWebElement element = WaitAndGetElementPresent(byElement, 1, driver);
             return element?.Text ?? "";
@@ -423,7 +545,7 @@ namespace Macros
         /// <param name="byElement">The by element.</param>
         /// <param name="attribute">The attribute.</param>
         /// <returns></returns>
-        public String GetAttributeIfPresent(By byElement, String attribute, IWebDriver driver)
+        public static String GetAttributeIfPresent(By byElement, String attribute, IWebDriver driver)
         {
             IWebElement element = WaitAndGetElementPresent(byElement, 1, driver);
             return element?.GetAttribute(attribute) ?? "";
@@ -433,7 +555,7 @@ namespace Macros
         /// </summary>
         /// <param name="text">The text.</param>
         /// <returns></returns>
-        public bool IsTextPresentAndVisible(String text, IWebElement driver)
+        public static bool IsTextPresentAndVisible(String text, IWebElement driver)
         {
             bool presentAndVisible = false;
 
@@ -464,7 +586,7 @@ namespace Macros
             BOTTOM
         }
 
-        public void ScrollWindowToElement(By byElement, LocationInWindow location, IWebDriver driver)
+        public static void ScrollWindowToElement(By byElement, LocationInWindow location, IWebDriver driver)
         {
             ScrollWindowToElement(driver.FindElement(byElement), location, driver);
         }
@@ -474,7 +596,7 @@ namespace Macros
         /// </summary>
         /// <param name="element"></param>
         /// <param name="location"></param>
-        public void ScrollWindowToElement(IWebElement element, LocationInWindow location, IWebDriver driver)
+        public static void ScrollWindowToElement(IWebElement element, LocationInWindow location, IWebDriver driver)
         {
             int elementX = element.Location.X;
             int elementY = element.Location.Y;
@@ -512,7 +634,7 @@ namespace Macros
         /// </summary>
         /// <param name="contextError">The context error.</param>
         /// <param name="driver">The WebDriver instance.</param>
-        public void AddContextError(string contextError, IWebDriver driver)
+        public static void AddContextError(string contextError, IWebDriver driver)
         {
             // Do some cleansing before sending it back to the server
             string cleanedError = contextError.Replace("\r\n", "<br/>").Replace("\r", "").Replace("\n", "<br/>").Replace("\"", "'");
@@ -524,7 +646,7 @@ namespace Macros
             Thread.Sleep(1000);
         }
 
-        public void MouseHover(IWebElement element, IWebDriver driver)
+        public static void MouseHover(IWebElement element, IWebDriver driver)
         {
             Actions actions = new Actions(driver);
             actions.MoveToElement(element).Perform();
@@ -536,7 +658,7 @@ namespace Macros
         /// <returns>
         ///   <br />
         /// </returns>
-        public bool WaitAndClickElementVisible(By by, int maxSeconds, IWebDriver driver)
+        public static bool WaitAndClickElementVisible(By by, int maxSeconds, IWebDriver driver)
         {
             try
             {
@@ -557,7 +679,7 @@ namespace Macros
         /// <param name="by">The by.</param>
         /// <param name="maxSeconds">The maximum seconds.</param>
         /// <returns>True if the element is not longer present and visible</returns>
-        public bool WaitForElementToDisappear(By by, int maxSeconds, IWebDriver driver)
+        public static bool WaitForElementToDisappear(By by, int maxSeconds, IWebDriver driver)
         {
             Thread.Sleep(1000);
             int counter = 0;
@@ -575,7 +697,7 @@ namespace Macros
         /// <param name="byElement">The by element.</param>
         /// <summary>Clicks at all costs.</summary>
         /// <param name="byElement">The by element.</param>
-        public void ClickAtAllCosts(By byElement, IWebDriver driver)
+        public static void ClickAtAllCosts(By byElement, IWebDriver driver)
         {
             IWebElement element = null;
 
@@ -616,7 +738,7 @@ namespace Macros
         /// </summary>
         /// <param name="byElement"></param>
         /// <param name="driver"></param>
-        public void Click(By byElement, IWebDriver driver)
+        public static void Click(By byElement, IWebDriver driver)
         {
             ScrollWindowToElement(byElement, LocationInWindow.MIDDLE, driver);
             ClickAtAllCosts(byElement, driver);
@@ -633,7 +755,7 @@ namespace Macros
         /// Clicks the using js.
         /// </summary>
         /// <param name="byElement">The by element.</param>
-        public void ClickUsingJS(By byElement, IWebDriver driver)
+        public static void ClickUsingJS(By byElement, IWebDriver driver)
         {
             object[] args = { driver.FindElement(byElement) };
             RunScriptWithParameters("arguments[0].click();", args, driver);
@@ -643,7 +765,7 @@ namespace Macros
         /// Clicks if present.
         /// </summary>
         /// <param name="byElement">The by element.</param>
-        public void ClickIfPresent(By byElement, IWebDriver driver)
+        public static void ClickIfPresent(By byElement, IWebDriver driver)
         {
             if (IsElementPresent(byElement, driver))
                 Click(byElement, driver);
@@ -655,7 +777,7 @@ namespace Macros
         /// Clicks if present and visible.
         /// </summary>
         /// <param name="byElement">The by element.</param>
-        public void ClickIfPresentAndVisible(By byElement,IWebDriver driver)
+        public static void ClickIfPresentAndVisible(By byElement, IWebDriver driver)
         {
             if (IsElementPresentAndVisible(byElement, driver))
                 Click(byElement, driver);
@@ -667,7 +789,7 @@ namespace Macros
         /// <param name="options"></param>
         /// <param name="textsToReplace"></param>
         /// <returns></returns>
-        public string[] CleanOptions(string[] options, string[] textsToReplace = null)
+        public static string[] CleanOptions(string[] options, string[] textsToReplace = null)
         {
             IEnumerable<string> replacedOptions = options;
 
@@ -688,7 +810,7 @@ namespace Macros
         /// Checks if not checked.
         /// </summary>
         /// <param name="byElement">The by element.</param>
-        public void CheckIfNotChecked(By byElement, IWebDriver driver)
+        public static void CheckIfNotChecked(By byElement, IWebDriver driver)
         {
             IWebElement checkElement = driver.FindElement(byElement);
 
@@ -699,7 +821,7 @@ namespace Macros
 
         /// <summary>Unchecks if checked.</summary>
         /// <param name="byElement">The by element.</param>
-        public void UncheckIfChecked(By byElement, IWebDriver driver)
+        public static void UncheckIfChecked(By byElement, IWebDriver driver)
         {
             IWebElement checkElement = driver.FindElement(byElement);
 
@@ -712,7 +834,7 @@ namespace Macros
         /// </summary>
         /// <param name="byElement">The by element.</param>
         /// <param name="text">The text.</param>
-        public void TypeUsingJS(By byElement, string text, IWebDriver driver)
+        public static void TypeUsingJS(By byElement, string text, IWebDriver driver)
         {
             object[] args = { driver.FindElement(byElement) };
             RunScriptWithParameters("arguments[0].value = '" + text + "';", args, driver);
@@ -725,7 +847,7 @@ namespace Macros
         /// </summary>
         /// <param name="byElement">The by element.</param>
         /// <returns></returns>
-        public bool IsChecked(By byElement, IWebDriver driver)
+        public static bool IsChecked(By byElement, IWebDriver driver)
         {
             return driver.FindElement(byElement).Selected;
         }
@@ -736,7 +858,7 @@ namespace Macros
         /// <param name="locator">The locator</param>
         /// <param name="textsToReplace">The text we want to remove to clean the options</param>
         /// <returns></returns>
-        public string[] GetTextOptionsFromElements(By locator, IWebDriver driver, string[] textsToReplace = null)
+        public static string[] GetTextOptionsFromElements(By locator, IWebDriver driver, string[] textsToReplace = null)
         {
             WaitAndGetElementVisible(locator, 10, driver);
 
@@ -751,7 +873,7 @@ namespace Macros
         /// <summary>Gets the text if present and not visible.</summary>
         /// <param name="byElement">The by element.</param>
         /// <returns></returns>
-        public String GetTextIfPresentAndNotVisible(By byElement, IWebDriver driver)
+        public static String GetTextIfPresentAndNotVisible(By byElement, IWebDriver driver)
         {
             object[] args = { driver.FindElement(byElement) };
             return ((IJavaScriptExecutor)driver).ExecuteScript("return arguments[0].innerText;", args).ToString();
@@ -763,7 +885,7 @@ namespace Macros
         /// </summary>
         /// <param name="selectElementBy">The select element by.</param>
         /// <returns></returns>
-        public SelectElement FindSelect(By selectElementBy, IWebDriver driver)
+        public static SelectElement FindSelect(By selectElementBy, IWebDriver driver)
         {
             return new SelectElement(driver.FindElement(selectElementBy));
         }
@@ -773,7 +895,7 @@ namespace Macros
         /// </summary>
         /// <param name="selectElement">The select element.</param>
         /// <returns></returns>
-        public string[] GetSelectValues(SelectElement selectElement)
+        public static string[] GetSelectValues(SelectElement selectElement)
         {
             string[] selectValues = new string[selectElement.Options.Count];
 
@@ -787,7 +909,7 @@ namespace Macros
         /// </summary>
         /// <param name="selectElement">The select element.</param>
         /// <returns></returns>
-        public string[] GetSelectOptions(SelectElement selectElement)
+        public static string[] GetSelectOptions(SelectElement selectElement)
         {
             string[] selectOptions = new string[selectElement.Options.Count];
 
@@ -803,7 +925,7 @@ namespace Macros
         /// </summary>
         /// <param name="selectElementBy">The select element by.</param>
         /// <returns></returns>
-        public string[] GetSelectOptions(By selectElementBy, IWebDriver driver)
+        public static string[] GetSelectOptions(By selectElementBy, IWebDriver driver)
         {
             return GetSelectOptions(new SelectElement(driver.FindElement(selectElementBy)));
         }
@@ -815,7 +937,7 @@ namespace Macros
         /// <param name="selectFieldBy">The select field by.</param>
         /// <param name="maxSeconds">The maximum seconds.</param>
         /// <returns></returns>
-        public SelectElement WaitAndGetSelectFieldFilledAndVisible(By selectFieldBy, int maxSeconds, WebDriver driver)
+        public static SelectElement WaitAndGetSelectFieldFilledAndVisible(By selectFieldBy, int maxSeconds, WebDriver driver)
         {
             IWebElement webElement = WaitAndGetElementVisible(selectFieldBy, maxSeconds, driver);
 
@@ -836,7 +958,7 @@ namespace Macros
         /// </summary>
         /// <param name="selectElementBy">The select element by.</param>
         /// <param name="indexToMatch">The index to match.</param>
-        public void SelectByIndex(By selectElementBy, int indexToMatch, WebDriver driver)
+        public static void SelectByIndex(By selectElementBy, int indexToMatch, WebDriver driver)
         {
             SelectElement selectElement = WaitAndGetSelectFieldFilledAndVisible(selectElementBy, 10, driver);
             selectElement.SelectByIndex(indexToMatch);
@@ -848,7 +970,7 @@ namespace Macros
         /// </summary>
         /// <param name="selectElementBy">The select element by.</param>
         /// <param name="labelToMatch">The label to match.</param>
-        public void SelectByLabel(By selectElementBy, string labelToMatch, WebDriver driver)
+        public static void SelectByLabel(By selectElementBy, string labelToMatch, WebDriver driver)
         {
             SelectElement selectElement = WaitAndGetSelectFieldFilledAndVisible(selectElementBy, 10, driver);
             selectElement.SelectByText(labelToMatch);
@@ -860,7 +982,7 @@ namespace Macros
         /// </summary>
         /// <param name="selectElementBy">The select element by.</param>
         /// <param name="valueToMatch">The value to match.</param>
-        public void SelectByValue(By selectElementBy, string valueToMatch, WebDriver driver)
+        public static void SelectByValue(By selectElementBy, string valueToMatch, WebDriver driver)
         {
             SelectElement selectElement = WaitAndGetSelectFieldFilledAndVisible(selectElementBy, 10, driver);
             selectElement.SelectByValue(valueToMatch);
@@ -871,7 +993,7 @@ namespace Macros
         /// <summary>Gets the selected label.</summary>
         /// <param name="selectElementBy">The select element by.</param>
         /// <returns></returns>
-        public string GetSelectedLabel(By selectElementBy, WebDriver driver)
+        public static string GetSelectedLabel(By selectElementBy, WebDriver driver)
         {
             SelectElement selectElement = WaitAndGetSelectFieldFilledAndVisible(selectElementBy, 10, driver);
             return selectElement.SelectedOption.Text;
@@ -896,7 +1018,7 @@ namespace Macros
         /// <param name="selectElementBy"></param>
         /// <param name="labelToMatch"></param>
         /// <returns></returns>
-        public int SelectBestOptionByLabel(By selectElementBy, string labelToMatch)
+        public static int SelectBestOptionByLabel(By selectElementBy, string labelToMatch)
         {
             return SelectBestOptionByLabel(selectElementBy, labelToMatch);
         }
@@ -906,7 +1028,7 @@ namespace Macros
         /// <param name="selectElementBy">The select element by.</param>
         /// <param name="labelToMatch">The label to match.</param>
         /// <returns></returns>
-        public int SelectBestNumericOptionByLabel(By selectElementBy, float labelToMatch)
+        public static int SelectBestNumericOptionByLabel(By selectElementBy, float labelToMatch)
         {
             return SelectBestNumericOptionByLabel(selectElementBy, labelToMatch);
         }
@@ -919,7 +1041,7 @@ namespace Macros
         /// </summary>
         /// <param name="selectElementBy">The select element by.</param>
         /// <param name="valueToMatch">The value to match.</param>
-        public int SelectBestOptionByValue(By selectElementBy, string valueToMatch)
+        public static int SelectBestOptionByValue(By selectElementBy, string valueToMatch)
         {
             return SelectBestOptionByValue(selectElementBy, valueToMatch);
         }
@@ -932,7 +1054,7 @@ namespace Macros
         /// <param name="selectElementBy">The select element by.</param>
         /// <param name="valueToMatch">The value to match.</param>
         /// <returns></returns>
-        public int SelectBestNumericOptionByValue(By selectElementBy, float valueToMatch)
+        public static int SelectBestNumericOptionByValue(By selectElementBy, float valueToMatch)
         {
             return SelectBestNumericOptionByValue(selectElementBy, valueToMatch);
         }
@@ -944,7 +1066,7 @@ namespace Macros
         /// </summary>
         /// <param name="selectElementBy">The select element by.</param>
         /// <returns></returns>
-        public string[] GetSelectValues(By selectElementBy, IWebDriver driver)
+        public static string[] GetSelectValues(By selectElementBy, IWebDriver driver)
         {
             return GetSelectValues(new SelectElement(driver.FindElement(selectElementBy)));
         }
@@ -954,7 +1076,7 @@ namespace Macros
         /// </summary>
         /// <param name="element"></param>
         /// <param name="maxSeconds"></param>
-        private void WaitForIframeVisible(IWebElement element, int maxSeconds)
+        private static void WaitForIframeVisible(IWebElement element, int maxSeconds)
         {
             int count = 0;
             do
@@ -970,7 +1092,7 @@ namespace Macros
         /// </summary>
         /// <param name="iframe"></param>
         /// <param name="action"></param>
-        private void SwitchAndDoStuff(IWebElement iframe, Action action, IWebDriver driver)
+        private static void SwitchAndDoStuff(IWebElement iframe, Action action, IWebDriver driver)
         {
             // Switch to the iframe
             driver.SwitchTo().Frame(iframe);
@@ -986,7 +1108,7 @@ namespace Macros
         /// </summary>
         /// <param name="iframe">The frameElement </param>
         /// <param name="action">The method which contains the actions we want to do into the iframe</param>
-        public void ManageIframe(IWebElement iframe, Action action, IWebDriver driver)
+        public static void ManageIframe(IWebElement iframe, Action action, IWebDriver driver)
         {
             WaitForIframeVisible(iframe, 10);
             SwitchAndDoStuff(iframe, action, driver);
@@ -997,7 +1119,7 @@ namespace Macros
         /// </summary>
         /// <param name="iframe">The Iframe(string) name or ID </param>
         /// <param name="action">The method which contains the actions we want to do into the iframe</param>
-        public void ManageIframe(string iframe, Action action, IWebDriver driver)
+        public static void ManageIframe(string iframe, Action action, IWebDriver driver)
         {
             IWebElement element;
             try
@@ -1021,7 +1143,7 @@ namespace Macros
         /// <param name="textToFind"></param>
         /// <param name="textsToRemove"></param>
         /// <returns></returns>
-        public bool ClickExactOptionFromElements(By locator, IWebDriver driver, string textToFind, string[] textsToRemove = null)
+        public static bool ClickExactOptionFromElements(By locator, IWebDriver driver, string textToFind, string[] textsToRemove = null)
         {
             // Get the array of options
             var options = GetTextOptionsFromElements(locator, driver, textsToRemove);
@@ -1056,7 +1178,7 @@ namespace Macros
         /// <summary>
         /// Simulates the blur event on Active element
         /// </summary>
-        public void SimulateBlurEvent(IWebDriver driver)
+        public static void SimulateBlurEvent(IWebDriver driver)
         {
             driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
         }
@@ -1066,7 +1188,7 @@ namespace Macros
         /// </summary>
         /// <param name="byElement">The by element</param>
         /// <returns></returns>
-        public IWebElement GetFirstVisibleAndEnableElement(By byElement, IWebDriver driver)
+        public static IWebElement GetFirstVisibleAndEnableElement(By byElement, IWebDriver driver)
         {
             var a = driver.FindElements(byElement);
 
@@ -1077,7 +1199,7 @@ namespace Macros
         /// Click the first visible and enable element. Useful when there are several elements with same locator
         /// </summary>
         /// <param name="byElement"></param>
-        public void ClickFirstVisibleAndEnableElement(By byElement, IWebDriver driver)
+        public static void ClickFirstVisibleAndEnableElement(By byElement, IWebDriver driver)
         {
             var a = driver.FindElements(byElement);
 

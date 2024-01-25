@@ -29,18 +29,18 @@ namespace Macros
                     driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
 
                     //Cookies
-                    var cookies = scraper.WaitAndGetElementVisible(By.Id("ccc-recommended-settings"), 1000, driver);
-                    if (scraper.IsElementPresentAndVisible(cookies))
+                    var cookies = WaitAndGetElementVisible(By.Id("ccc-recommended-settings"), 1000, driver);
+                    if (IsElementPresentAndVisible(cookies))
                     {
                         Thread.Sleep(2000);
-                        scraper.Click(By.Id("ccc-recommended-settings"), driver);                      
+                        Click(By.Id("ccc-recommended-settings"), driver);                      
                     }
 
                     //Start your journey
-                    var startJourney = scraper.WaitAndGetElementVisible(By.CssSelector("a[href='/scQuoteStatus.php']"), 1000, driver);
-                    if (scraper.IsElementPresentAndVisible(startJourney))
+                    var startJourney = WaitAndGetElementVisible(By.CssSelector("a[href='/scQuoteStatus.php']"), 1000, driver);
+                    if (IsElementPresentAndVisible(startJourney))
                     {
-                        scraper.Click(By.CssSelector("a[href='/scQuoteStatus.php']"), driver);
+                        Click(By.CssSelector("a[href='/scQuoteStatus.php']"), driver);
                         Thread.Sleep(2000);
                         IWebElement popup = driver.FindElement(By.XPath("//div[contains(@class, 'modal-overlay')]//a[@href='/scQuoteStatus.php']"));
                         popup.Click();
@@ -109,7 +109,7 @@ namespace Macros
 
             // When was registered
             IWebElement registered = driver.FindElement(By.CssSelector("input[formcontrolname='year']"));
-            scraper.TypeWithSpeedSetting(registered, year, 100, driver);
+            TypeWithSpeedSetting(registered, year, 100, driver);
             Thread.Sleep(2000);
             // Next button
             IWebElement nextCarDetails = driver.FindElement(By.CssSelector("button[data-test='search-fuel-transmission-year-next-button']"));
@@ -195,28 +195,28 @@ namespace Macros
 
             // First name
             IWebElement name = driver.FindElement(By.Id("firstName"));
-            scraper.TypeWithSpeedSetting(name, firstName, 100, driver);
+            TypeWithSpeedSetting(name, firstName, 100, driver);
             Thread.Sleep(2000);
 
             // Last name
             IWebElement surname = driver.FindElement(By.Id("lastName"));
-            scraper.TypeWithSpeedSetting(surname, lastName, 100, driver);
+            TypeWithSpeedSetting(surname, lastName, 100, driver);
             Thread.Sleep(2000);
 
             //DOB
             IWebElement DOBDay = driver.FindElement(By.Id("dob-day"));
-            scraper.TypeWithSpeedSetting(DOBDay, day, 100, driver);
+            TypeWithSpeedSetting(DOBDay, day, 100, driver);
             Thread.Sleep(1000);
             IWebElement DOBMonth = driver.FindElement(By.Id("dob-month"));
-            scraper.TypeWithSpeedSetting(DOBMonth, month, 100, driver);
+            TypeWithSpeedSetting(DOBMonth, month, 100, driver);
             Thread.Sleep(1000);
             IWebElement DOBYear = driver.FindElement(By.Id("dob-year"));
-            scraper.TypeWithSpeedSetting(DOBYear, year, 100, driver);
+            TypeWithSpeedSetting(DOBYear, year, 100, driver);
             Thread.Sleep(2000);
 
             // Postcode
             IWebElement enterPostcode = driver.FindElement(By.Name("postcode"));
-            scraper.TypeWithSpeedSetting(enterPostcode, postcode, 100, driver);
+            TypeWithSpeedSetting(enterPostcode, postcode, 100, driver);
             Thread.Sleep(1000);
             driver.FindElement(By.Id("postcode-search")).Click();
             Thread.Sleep(1000);
@@ -232,7 +232,7 @@ namespace Macros
             int tries = 0;
             while (tries < 2)
             {
-                if (scraper.IsElementPresentAndVisible(continueButton))
+                if (IsElementPresentAndVisible(continueButton))
                 {
                     continueButton.Click();
                     Thread.Sleep(2000);
@@ -265,7 +265,7 @@ namespace Macros
 
             // Car value
             IWebElement value = driver.FindElement(By.Name("purchaseValue"));
-            scraper.TypeWithSpeedSetting(value, carValue, 100, driver);
+            TypeWithSpeedSetting(value, carValue, 100, driver);
             Thread.Sleep(2000);
 
             continueButton(driver);
@@ -340,9 +340,9 @@ namespace Macros
             Thread.Sleep(2000);
 
             // Voluntary Excess
-            if (scraper.IsElementPresentAndVisible(By.CssSelector("select[data-test='voluntary-excess-select']"), driver))
+            if (IsElementPresentAndVisible(By.CssSelector("select[data-test='voluntary-excess-select']"), driver))
             {
-                scraper.Click(By.CssSelector("select[data-test='voluntary-excess-select']"), driver);
+                Click(By.CssSelector("select[data-test='voluntary-excess-select']"), driver);
                 IWebElement VEx = driver.FindElement(By.CssSelector("select[data-test='voluntary-excess-select']"));
                 Thread.Sleep(1000);
                 SelectElement VxS = new SelectElement(VEx);
@@ -390,12 +390,12 @@ namespace Macros
             // Contact details
             // Email
             IWebElement mail = driver.FindElement(By.Name("email"));
-            scraper.TypeWithSpeedSetting(mail, email, 100, driver);
+            TypeWithSpeedSetting(mail, email, 100, driver);
             Thread.Sleep(2000);
             // Phone number
 
             IWebElement phone = driver.FindElement(By.CssSelector("input[formcontrolname='phone']"));
-            scraper.TypeWithSpeedSetting(phone, phoneNumber, 100, driver);
+            TypeWithSpeedSetting(phone, phoneNumber, 100, driver);
             Thread.Sleep(2000);
             driver.FindElement(By.CssSelector("button[data-test='done-button']")).Click();
 
@@ -428,13 +428,13 @@ namespace Macros
             // Employment details
             // Main occupation
             IWebElement mainJob = driver.FindElement(By.CssSelector("input[placeholder='Enter occupation...']"));
-            scraper.TypeWithSpeedSetting(mainJob, occupation, 100, driver);
+            TypeWithSpeedSetting(mainJob, occupation, 100, driver);
             driver.FindElement(By.CssSelector("mat-option[class='mat-option mat-focus-indicator ng-star-inserted']")).Click();
             Thread.Sleep(2000);
 
             // Industry
             IWebElement industry = driver.FindElement(By.CssSelector("input[placeholder='Enter industry...']"));
-            scraper.TypeWithSpeedSetting(industry, industryJob, 100, driver);
+            TypeWithSpeedSetting(industry, industryJob, 100, driver);
             driver.FindElement(By.CssSelector("mat-option[class='mat-option mat-focus-indicator ng-star-inserted']")).Click();
             Thread.Sleep(1000);
 
@@ -456,8 +456,8 @@ namespace Macros
             // Number
             IWebElement numberLicence = driver.FindElement(By.CssSelector("input[formcontrolname='licenceNumber']"));
             Thread.Sleep(1000);
-            scraper.ClearInput(numberLicence);
-            scraper.TypeWithSpeedSetting(numberLicence, drivingLincenceNumber, 100, driver);
+            ClearInput(numberLicence);
+            TypeWithSpeedSetting(numberLicence, drivingLincenceNumber, 100, driver);
             Thread.Sleep(2000);
 
             // Full UK manual driving licence
@@ -566,23 +566,23 @@ namespace Macros
 
             // First name
             IWebElement name = driver.FindElement(By.CssSelector("input[formcontrolname='firstName']"));
-            scraper.TypeWithSpeedSetting(name, firstName, 100, driver);
+            TypeWithSpeedSetting(name, firstName, 100, driver);
             Thread.Sleep(2000);
 
             // Last name
             IWebElement surname = driver.FindElement(By.Id("input[formcontrolname='lastName']"));
-            scraper.TypeWithSpeedSetting(surname, lastName, 100, driver);
+            TypeWithSpeedSetting(surname, lastName, 100, driver);
             Thread.Sleep(2000);
 
             //DOB
             IWebElement DOBDay = driver.FindElement(By.Id("dob-day"));
-            scraper.TypeWithSpeedSetting(DOBDay, day, 100, driver);
+            TypeWithSpeedSetting(DOBDay, day, 100, driver);
             Thread.Sleep(1000);
             IWebElement DOBMonth = driver.FindElement(By.Id("dob-month"));
-            scraper.TypeWithSpeedSetting(DOBMonth, month, 100, driver);
+            TypeWithSpeedSetting(DOBMonth, month, 100, driver);
             Thread.Sleep(1000);
             IWebElement DOBYear = driver.FindElement(By.Id("dob-year"));
-            scraper.TypeWithSpeedSetting(DOBYear, year, 100, driver);
+            TypeWithSpeedSetting(DOBYear, year, 100, driver);
             Thread.Sleep(2000);
 
             // Has the driver lived in the UK
@@ -592,19 +592,19 @@ namespace Macros
             // Contact details
             // Email
             IWebElement mail = driver.FindElement(By.Name("email"));
-            scraper.TypeWithSpeedSetting(mail, email, 100, driver);
+            TypeWithSpeedSetting(mail, email, 100, driver);
             Thread.Sleep(2000);
 
 
             // Phone number
             IWebElement phone = driver.FindElement(By.CssSelector("input[formcontrolname='phone']"));
-            scraper.TypeWithSpeedSetting(phone, phoneNumber, 100, driver);
+            TypeWithSpeedSetting(phone, phoneNumber, 100, driver);
             Thread.Sleep(2000);
             driver.FindElement(By.CssSelector("button[data-test='done-button']")).Click();
 
             // Postcode
             IWebElement enterPostcode = driver.FindElement(By.Name("postcode"));
-            scraper.TypeWithSpeedSetting(enterPostcode, postcode, 100, driver);
+            TypeWithSpeedSetting(enterPostcode, postcode, 100, driver);
             Thread.Sleep(1000);
             driver.FindElement(By.Id("postcode-search")).Click();
             Thread.Sleep(1000);
