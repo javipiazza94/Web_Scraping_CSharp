@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Macros", "Macros\Macros.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdmiralMotorMacro", "MacroMoneySupermarket\AdmiralMotorMacro.csproj", "{B1D1B59E-315A-4259-B049-70217327435A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClasificacionPrimeraDivision", "ClasificacionPrimeraDivision\ClasificacionPrimeraDivision.csproj", "{72546EBC-CD41-4C0E-BE87-0D508E70B7CD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{B1D1B59E-315A-4259-B049-70217327435A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1D1B59E-315A-4259-B049-70217327435A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B1D1B59E-315A-4259-B049-70217327435A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72546EBC-CD41-4C0E-BE87-0D508E70B7CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72546EBC-CD41-4C0E-BE87-0D508E70B7CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72546EBC-CD41-4C0E-BE87-0D508E70B7CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72546EBC-CD41-4C0E-BE87-0D508E70B7CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
