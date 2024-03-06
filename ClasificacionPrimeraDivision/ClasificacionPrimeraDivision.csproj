@@ -13,6 +13,7 @@
 		<!-- Reemplaza "tu_version_aqui" con la versión específica que necesitas para Selenium.Support -->
 		<PackageReference Include="Selenium.Support" Version="4.16.2" />
 		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+		<ProjectReference Include="..\WebDriverScraperBaseLibrary\WebDriverScraperBaseLibrary.csproj" />
 
 	</ItemGroup>
 

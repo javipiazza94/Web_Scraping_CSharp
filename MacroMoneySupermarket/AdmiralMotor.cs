@@ -2,17 +2,11 @@
 using OpenQA.Selenium;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Support.UI;
-using OpenQA.Selenium.Interactions;
-using System.Collections.ObjectModel;
-using System.Xml;
-using System.Xml.Linq;
-using static System.Net.Mime.MediaTypeNames;
-
 
 
 namespace Macros
 {
-    class Admiral:LabyrinthWebDriverScraperBase
+    class Admiral:WebDriverScraperBaseLibrary.WebDriverScraperBase
     {
         static void Main(string[] args)
         {
@@ -20,7 +14,6 @@ namespace Macros
             {
                 try
                 {
-                    var scraper = new LabyrinthWebDriverScraperBase();
                     Person familyMember = new Person();
                     driver.Url = "https://www.admiral.com/car-insurance";
                     driver.Manage().Window.Maximize();
@@ -48,8 +41,8 @@ namespace Macros
 
                     }
                     // Go to the form
-                    YourCar(driver, scraper);
-                    FillDetailsForDriver(familyMember, driver, scraper);
+                    YourCar(driver);
+                    FillDetailsForDriver(familyMember, driver);
 
                     // Other actions...
                 }
@@ -60,7 +53,7 @@ namespace Macros
             }
         }
 
-        private static void YourCar(EdgeDriver driver, LabyrinthWebDriverScraperBase scraper)
+        private static void YourCar(EdgeDriver driver)
         {
             // Data
             string manufacturer = "CITROEN";
@@ -129,24 +122,24 @@ namespace Macros
 
         }
 
-        private static void FillDetailsForDriver(Person familyMember, EdgeDriver driver, LabyrinthWebDriverScraperBase scraper)
+        private static void FillDetailsForDriver(Person familyMember, EdgeDriver driver)
         {
             switch (familyMember)
             {
                 case Person.Principal:
-                    YourDetails(driver, scraper, familyMember);
-                    DetailsCorrect(driver, scraper);
-                    Drivers(driver, scraper, familyMember);                  
+                    YourDetails(driver, familyMember);
+                    DetailsCorrect(driver);
+                    Drivers(driver, familyMember);                  
                     break;
                 case Person.Mother:
-                    AddPassenger(familyMember, scraper, driver);
+                    AddPassenger(familyMember, driver);
                     // Fill details for the mother
                     break;
             }
         }
 
 
-        private static void YourDetails(EdgeDriver driver, LabyrinthWebDriverScraperBase scraper, Person person)
+        private static void YourDetails(EdgeDriver driver, Person person)
         {
             string postcode = "";
             string lastName = "";
@@ -245,7 +238,7 @@ namespace Macros
             }
         }
 
-        private static void DetailsCorrect(EdgeDriver driver, LabyrinthWebDriverScraperBase scraper)
+        private static void DetailsCorrect(EdgeDriver driver)
         {
             string carValue = "4000";
             string miles = "10000";
@@ -353,7 +346,7 @@ namespace Macros
             continueButton(driver);
         }
 
-        private static void Drivers(EdgeDriver driver, LabyrinthWebDriverScraperBase scraper, Person person)
+        private static void Drivers(EdgeDriver driver, Person person)
         {
             string email = "";
             string phoneNumber = "";
@@ -503,7 +496,7 @@ namespace Macros
             continueButton(driver);
 
         }
-        private static void AddPassenger(Person familyMember, LabyrinthWebDriverScraperBase scraper, EdgeDriver driver)
+        private static void AddPassenger(Person familyMember, EdgeDriver driver)
         {
             string postcode = "";
             string lastName = "";

@@ -1,45 +1,20 @@
 ﻿using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using OpenQA.Selenium;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Net;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Drawing;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Threading;
-using Newtonsoft.Json;
-using OpenQA.Selenium.Remote;
-using OpenQA.Selenium.Firefox;
-using System.Web;
+
 using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 
-
-namespace Macros
+namespace WebDriverScraperBaseLibrary
 {
-    public class LabyrinthWebDriverScraperBase
+    public class WebDriverScraperBase
     {
-
         /// <summary>
         /// Initializes a new instance of the <see cref="LabyrinthWebDriverScraperBase"/> class.
         /// </summary>
-        public LabyrinthWebDriverScraperBase()
+        public WebDriverScraperBase()
             : base()
         {
 
@@ -55,6 +30,15 @@ namespace Macros
             {
                 driver.Navigate().GoToUrl(URL);
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="numberSeconds"></param>
+        public static void Sleep(int numberSeconds)
+        {
+            Thread.Sleep(numberSeconds);
         }
 
         /// <summary>
@@ -105,29 +89,55 @@ namespace Macros
         /// </summary>
         /// <param name="cssSelector">The element located by css.</param>
         /// <param name="message">Name of Screenshot.</param>
-        public static void TakePartialScreenshotsWithScrolling(string cssLocator, string message, IWebDriver driver, string screenshotPath)
+        public static void TakePartialScreenshotsWithScrolling(string message, IWebDriver driver)
         {
             int current = 0;
-            cssLocator = cssLocator.Trim().Replace(" ", "."); // subclasses
-            int height = driver.FindElement(By.CssSelector(cssLocator)).Size.Height;
+            int height = GetWindowSize(driver).Height;
             int numberOfScreenshots = (height / 800) + (height % 800 > 0 ? 1 : 0);
 
             if (height <= 800)
             {
-                TakeScreenshot(driver, screenshotPath);
+                TakeScreenshot(driver, message);
                 return;
             }
 
             // Go to top
-            RunScript($"document.querySelector('{cssLocator}').scrollBy(0, -{height + 500});", driver);
+            RunScript($"window.scrollTo(0, 0);", driver);
 
             // Following screenshots
             for (int i = 0; i < numberOfScreenshots; i++)
             {
-                TakeScreenShotIfEnabled(driver, $"{message}. Part {i + 1}", 0, current, 1600, 800);
-                RunScript($"document.querySelector('{cssLocator}').scrollBy(0, 800);", driver);
+                TakeScreenshot(driver, $"{message}. Part {i + 1}");
+                ScrollPageDown(driver, 800);
                 current += 800;
+                if (current > height)
+                {
+                    return;
+                }
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="driver"></param>
+        /// <returns></returns>
+        public static Size GetWindowSize(IWebDriver driver)
+        {
+            IJavaScriptExecutor jsExecutor = (IJavaScriptExecutor)driver;
+            long width = (long)jsExecutor.ExecuteScript("return window.innerWidth;");
+            long height = (long)jsExecutor.ExecuteScript("return window.innerHeight;");
+            return new Size((int)width, (int)height);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="driver"></param>
+        /// <param name="yOffset"></param>
+        public static void ScrollPageDown(IWebDriver driver, int yOffset)
+        {
+            RunScript($"window.scrollTo(0, {yOffset});", driver);
         }
 
         public static void TakeScreenShotIfEnabled(IWebDriver driver, string message, int x, int y, int width, int height)
@@ -148,7 +158,7 @@ namespace Macros
                 Bitmap croppedImage = CropImage(screenshot.AsByteArray, cropArea);
 
                 // Guardar el screenshot recortado en una ubicación específica o procesarlo según sea necesario
-                croppedImage.Save($"C:/Users/MSI/Documents/Macros de Web Scraping/imagenes/{message}.png", ImageFormat.Png);
+                croppedImage.Save($"C:\\Users\\puent\\OneDrive\\Escritorio\\Javi Bootcamp\\Web_Scraping_CSharp\\Imgs\\{message}.png", ImageFormat.Png);
             }
         }
 
@@ -175,7 +185,7 @@ namespace Macros
             // Tomar la captura de pantalla y guardarla en el archivo especificado
             ITakesScreenshot screenshotDriver = driver as ITakesScreenshot;
             Screenshot screenshot = screenshotDriver.GetScreenshot();
-            string path = $"C:/Users/MSI/Documents/Macros de Web Scraping/imagenes/{message}.png";
+            string path = $"C:\\Users\\puent\\OneDrive\\Escritorio\\Javi Bootcamp\\Web_Scraping_CSharp\\Imgs\\{message}.png";
             screenshot.SaveAsFile(path);
         }
 
@@ -508,6 +518,17 @@ namespace Macros
         public static String GetAttribute(By byElement, String attribute, IWebDriver driver)
         {
             return driver.FindElement(byElement).GetAttribute(attribute);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="attribute"></param>
+        /// <returns></returns>
+        public static string GetAttribute(IWebElement element, string attribute)
+        {
+            return element.GetAttribute(attribute);
         }
 
         /// <summary>
@@ -1239,8 +1260,6 @@ namespace Macros
         {
             return value.Equals("N/A", StringComparison.CurrentCultureIgnoreCase);
         }
-
-
 
     }
 }

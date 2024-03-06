@@ -1,41 +1,12 @@
-﻿using OpenQA.Selenium.Interactions;
-using OpenQA.Selenium.Support.UI;
+﻿
 using OpenQA.Selenium;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Net;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Drawing;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Threading;
-using Newtonsoft.Json;
-using OpenQA.Selenium.Remote;
-using OpenQA.Selenium.Firefox;
-using System.Web;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System;
 using OpenQA.Selenium.Edge;
+using static System.Collections.Specialized.BitVector32;
+using WebDriverScraperBaseLibrary;
 
-namespace Macros
+namespace LFP
 {
-    class Clasificacion : LabyrinthWebDriverScraperBase
+    class Clasificacion : WebDriverScraperBaseLibrary.WebDriverScraperBase
     {
         public class PrimeraDivision
         {
@@ -137,8 +108,45 @@ namespace Macros
                 liga.GolesAFavorFuera = posicion.FindElement(By.XPath(".//th[@class='cont-nombre-equipo']/following-sibling::td[20]")).Text;
                 liga.GolesEnContraFuera = posicion.FindElement(By.XPath(".//th[@class='cont-nombre-equipo']/following-sibling::td[21]")).Text;
 
+                //Guardamos cada fila en una lista
                 equipos.Add(liga);
+               
             }
+            //Hacemos el screenshot parcial de la tabla para comprobarla
+            TakePartialScreenshotsWithScrolling("Clasificacion de Primera Division en la 2023-2024", driver);
+
+            //Guardamos la tabla en un csv
+            GuardarTabla(equipos);
+        }
+        private static void GuardarTabla(List<PrimeraDivision> equipos)
+        {
+            string ruta = "C:\\Users\\puent\\OneDrive\\Escritorio\\Javi Bootcamp\\Web_Scraping_CSharp\\CSVs\\ClasificacionLiga2023-2024.csv";
+
+            using (StreamWriter escritura = new StreamWriter(ruta))
+            {
+                // Escribimos el nombre de las columnas de la tabla
+                string[] columnNames = {
+                "Posicion Liga", "Nombre Equipo", "Puntos", "Partidos", "Victorias", "Empates", "Derrotas",
+                "Goles A Favor", "Goles En Contra", "Puntos Casa", "Partidos Casa", "Victorias Casa", "Empates Casa",
+                "Derrotas Casa", "Goles A Favor Casa", "Goles En Contra Casa", "Punto sFuera", "Partidos Fuera",
+                "Victorias Fuera", "Empates Fuera", "Derrotas Fuera", "Goles A Favor Fuera", "Goles En Contra Fuera"
+                };
+
+                string headerRow = string.Join(",", columnNames);
+                escritura.WriteLine(headerRow);
+
+                //Escribimos cada fila de la lista
+                foreach (var equipo in equipos)
+                {
+                    escritura.WriteLine($"{equipo.PosicionLiga},{equipo.NombreEquipo},{equipo.Puntos},{equipo.Partidos}," +
+                                    $"{equipo.Victorias},{equipo.Empates},{equipo.Derrotas},{equipo.GolesAFavor},{equipo.GolesEnContra}," + // Datos para partidos totales
+                                     $"{equipo.PuntosCasa},{equipo.PartidosCasa},{equipo.VictoriasCasa},{equipo.EmpatesCasa},{equipo.DerrotasCasa}," +
+                                     $"{equipo.GolesAFavorCasa},{equipo.GolesEnContraCasa}," + // Datos para partidos en casa
+                                     $"{equipo.PuntosFuera},{equipo.PartidosFuera},{equipo.VictoriasFuera},{equipo.EmpatesFuera},{equipo.DerrotasFuera}," +
+                                     $"{equipo.GolesAFavorFuera},{equipo.GolesEnContraFuera}"); // Datos para partidos fuera de casa
+                }
+            }
+
         }
 
     }
